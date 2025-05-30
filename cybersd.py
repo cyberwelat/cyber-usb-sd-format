@@ -92,7 +92,6 @@ class SDFormatter(QWidget):
             return
         device = current.text().split()[0]
 
-        # 1. onay
         confirm1 = QMessageBox.question(self, "Onay",
                                        f"{device} üzerindeki tüm veriler geri alınamaz şekilde silinecek!\nDevam etmek istediğinize emin misiniz?",
                                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
@@ -100,7 +99,6 @@ class SDFormatter(QWidget):
             self.log("İşlem kullanıcı tarafından iptal edildi.")
             return
 
-        # 2. onay (fazla emin olmak için)
         confirm2 = QMessageBox.question(self, "Kesin Onay",
                                        "Bu işlem geri alınamaz!\nGerçekten devam etmek istiyor musunuz?",
                                        QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
