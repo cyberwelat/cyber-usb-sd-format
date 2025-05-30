@@ -72,7 +72,6 @@ class USBFormatter(QWidget):
         devices = []
         try:
             if system == "Linux":
-                # Linux'ta lsblk komutu ile usb aygıtları tespit et
                 result = subprocess.run(['lsblk', '-o', 'NAME,SIZE,MODEL,RM,TRAN', '-J'], capture_output=True, text=True)
                 import json
                 data = json.loads(result.stdout)
@@ -84,7 +83,7 @@ class USBFormatter(QWidget):
                             'model': block.get('model', 'Bilinmiyor')
                         })
             elif system == "Windows":
-                # Windows'ta WMIC ile USB sürücüleri al
+                
                 cmd = ['wmic', 'diskdrive', 'where', 'InterfaceType="USB"', 'get', 'DeviceID,Model,Size', '/format:csv']
                 result = subprocess.run(cmd, capture_output=True, text=True, shell=True)
                 lines = result.stdout.strip().splitlines()
@@ -186,10 +185,6 @@ class USBFormatter(QWidget):
     def wipe_device_windows(self, device):
         import ctypes
 
-        # Windows'da USB disk ID'si genelde \\\\.\\PhysicalDriveX formatında
-        # Örneğin: \\.\PhysicalDrive1
-
-        # 1) Disk üzerindeki tüm partitionları sil
         self.log("Disk partitionları temizleniyor...")
         disk_number = None
         try:
@@ -200,7 +195,7 @@ class USBFormatter(QWidget):
         except Exception as e:
             raise RuntimeError(f"Disk numarası alınamadı: {e}")
 
-        # Diskpart komutu ile tüm partitionları silmek için script yazalım:
+       
         diskpart_script = f"""
 select disk {disk_number}
 clean
@@ -213,15 +208,12 @@ exit
         with open(script_path, "w") as f:
             f.write(diskpart_script)
 
-        # Diskpart'ı çalıştır
+       
         result = subprocess.run(["diskpart", "/s", script_path], capture_output=True, text=True, shell=True)
         if result.returncode != 0:
             raise RuntimeError(f"Diskpart formatlama hatası:\n{result.stderr}")
 
         self.log("Disk başarıyla temizlendi ve FAT32 olarak formatlandı.")
-
-        # Güvenli silme Windows'da genellikle 3-pass random data yazma değil, bu adım isteğe bağlı
-        # İstersen daha derin güvenli silme için başka yöntemler entegre edilebilir
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
